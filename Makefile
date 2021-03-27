@@ -1,0 +1,2 @@
+pretty:
+	gofmt -s -w .

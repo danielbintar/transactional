@@ -12,8 +12,7 @@ type kafkaPublisher struct {
 }
 
 func NewKafkaPublisher() kafkaPublisher {
-	return kafkaPublisher{
-	}
+	return kafkaPublisher{}
 }
 
 func (k kafkaPublisher) Publish(ctx context.Context, db DB, topic string, payload string) error {
