@@ -5,8 +5,8 @@ import (
 	"errors"
 	"testing"
 
-	mockPkg "github.com/danielbintar/transactional/pkg/mocks"
 	"github.com/danielbintar/transactional/pkg"
+	mockPkg "github.com/danielbintar/transactional/pkg/mocks"
 
 	"github.com/golang/mock/gomock"
 
