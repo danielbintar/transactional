@@ -26,7 +26,7 @@ func NewMWSConsumer(db DB, mws Mws) *mwsConsumer {
 }
 
 func (c *mwsConsumer) Run() {
-	for c.active == true {
+	for c.active {
 		if err := c.Process(); err != nil {
 			time.Sleep(2 * time.Minute)
 		}
