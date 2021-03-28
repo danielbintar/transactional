@@ -7,34 +7,49 @@ package mocks
 import (
 	context "context"
 	sql "database/sql"
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
-// MockDB is a mock of DB interface
+// MockDB is a mock of DB interface.
 type MockDB struct {
 	ctrl     *gomock.Controller
 	recorder *MockDBMockRecorder
 }
 
-// MockDBMockRecorder is the mock recorder for MockDB
+// MockDBMockRecorder is the mock recorder for MockDB.
 type MockDBMockRecorder struct {
 	mock *MockDB
 }
 
-// NewMockDB creates a new mock instance
+// NewMockDB creates a new mock instance.
 func NewMockDB(ctrl *gomock.Controller) *MockDB {
 	mock := &MockDB{ctrl: ctrl}
 	mock.recorder = &MockDBMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockDB) EXPECT() *MockDBMockRecorder {
 	return m.recorder
 }
 
-// ExecContext mocks base method
+// Commit mocks base method.
+func (m *MockDB) Commit() error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Commit")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Commit indicates an expected call of Commit.
+func (mr *MockDBMockRecorder) Commit() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockDB)(nil).Commit))
+}
+
+// ExecContext mocks base method.
 func (m *MockDB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, query}
@@ -47,14 +62,14 @@ func (m *MockDB) ExecContext(ctx context.Context, query string, args ...interfac
 	return ret0, ret1
 }
 
-// ExecContext indicates an expected call of ExecContext
+// ExecContext indicates an expected call of ExecContext.
 func (mr *MockDBMockRecorder) ExecContext(ctx, query interface{}, args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, query}, args...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecContext", reflect.TypeOf((*MockDB)(nil).ExecContext), varargs...)
 }
 
-// QueryRowContext mocks base method
+// QueryRowContext mocks base method.
 func (m *MockDB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, query}
@@ -66,37 +81,23 @@ func (m *MockDB) QueryRowContext(ctx context.Context, query string, args ...inte
 	return ret0
 }
 
-// QueryRowContext indicates an expected call of QueryRowContext
+// QueryRowContext indicates an expected call of QueryRowContext.
 func (mr *MockDBMockRecorder) QueryRowContext(ctx, query interface{}, args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, query}, args...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryRowContext", reflect.TypeOf((*MockDB)(nil).QueryRowContext), varargs...)
 }
 
-// CommitContext mocks base method
-func (m *MockDB) CommitContext(ctx context.Context) error {
+// Rollback mocks base method.
+func (m *MockDB) Rollback() error {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CommitContext", ctx)
+	ret := m.ctrl.Call(m, "Rollback")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// CommitContext indicates an expected call of CommitContext
-func (mr *MockDBMockRecorder) CommitContext(ctx interface{}) *gomock.Call {
+// Rollback indicates an expected call of Rollback.
+func (mr *MockDBMockRecorder) Rollback() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CommitContext", reflect.TypeOf((*MockDB)(nil).CommitContext), ctx)
-}
-
-// RollbackContext mocks base method
-func (m *MockDB) RollbackContext(ctx context.Context) error {
-	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RollbackContext", ctx)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// RollbackContext indicates an expected call of RollbackContext
-func (mr *MockDBMockRecorder) RollbackContext(ctx interface{}) *gomock.Call {
-	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RollbackContext", reflect.TypeOf((*MockDB)(nil).RollbackContext), ctx)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockDB)(nil).Rollback))
 }
