@@ -9,6 +9,7 @@ import (
 	sql "database/sql"
 	reflect "reflect"
 
+	pkg "github.com/danielbintar/transactional/pkg"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -35,8 +36,46 @@ func (m *MockDB) EXPECT() *MockDBMockRecorder {
 	return m.recorder
 }
 
+// Begin mocks base method.
+func (m *MockDB) Begin() (pkg.Tx, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Begin")
+	ret0, _ := ret[0].(pkg.Tx)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Begin indicates an expected call of Begin.
+func (mr *MockDBMockRecorder) Begin() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Begin", reflect.TypeOf((*MockDB)(nil).Begin))
+}
+
+// MockTx is a mock of Tx interface.
+type MockTx struct {
+	ctrl     *gomock.Controller
+	recorder *MockTxMockRecorder
+}
+
+// MockTxMockRecorder is the mock recorder for MockTx.
+type MockTxMockRecorder struct {
+	mock *MockTx
+}
+
+// NewMockTx creates a new mock instance.
+func NewMockTx(ctrl *gomock.Controller) *MockTx {
+	mock := &MockTx{ctrl: ctrl}
+	mock.recorder = &MockTxMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockTx) EXPECT() *MockTxMockRecorder {
+	return m.recorder
+}
+
 // Commit mocks base method.
-func (m *MockDB) Commit() error {
+func (m *MockTx) Commit() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Commit")
 	ret0, _ := ret[0].(error)
@@ -44,13 +83,13 @@ func (m *MockDB) Commit() error {
 }
 
 // Commit indicates an expected call of Commit.
-func (mr *MockDBMockRecorder) Commit() *gomock.Call {
+func (mr *MockTxMockRecorder) Commit() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockDB)(nil).Commit))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Commit", reflect.TypeOf((*MockTx)(nil).Commit))
 }
 
 // ExecContext mocks base method.
-func (m *MockDB) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
+func (m *MockTx) ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{ctx, query}
 	for _, a := range args {
@@ -63,33 +102,33 @@ func (m *MockDB) ExecContext(ctx context.Context, query string, args ...interfac
 }
 
 // ExecContext indicates an expected call of ExecContext.
-func (mr *MockDBMockRecorder) ExecContext(ctx, query interface{}, args ...interface{}) *gomock.Call {
+func (mr *MockTxMockRecorder) ExecContext(ctx, query interface{}, args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{ctx, query}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecContext", reflect.TypeOf((*MockDB)(nil).ExecContext), varargs...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExecContext", reflect.TypeOf((*MockTx)(nil).ExecContext), varargs...)
 }
 
-// QueryRowContext mocks base method.
-func (m *MockDB) QueryRowContext(ctx context.Context, query string, args ...interface{}) *sql.Row {
+// QueryRow mocks base method.
+func (m *MockTx) QueryRow(query string, args ...interface{}) pkg.SQLRow {
 	m.ctrl.T.Helper()
-	varargs := []interface{}{ctx, query}
+	varargs := []interface{}{query}
 	for _, a := range args {
 		varargs = append(varargs, a)
 	}
-	ret := m.ctrl.Call(m, "QueryRowContext", varargs...)
-	ret0, _ := ret[0].(*sql.Row)
+	ret := m.ctrl.Call(m, "QueryRow", varargs...)
+	ret0, _ := ret[0].(pkg.SQLRow)
 	return ret0
 }
 
-// QueryRowContext indicates an expected call of QueryRowContext.
-func (mr *MockDBMockRecorder) QueryRowContext(ctx, query interface{}, args ...interface{}) *gomock.Call {
+// QueryRow indicates an expected call of QueryRow.
+func (mr *MockTxMockRecorder) QueryRow(query interface{}, args ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	varargs := append([]interface{}{ctx, query}, args...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryRowContext", reflect.TypeOf((*MockDB)(nil).QueryRowContext), varargs...)
+	varargs := append([]interface{}{query}, args...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "QueryRow", reflect.TypeOf((*MockTx)(nil).QueryRow), varargs...)
 }
 
 // Rollback mocks base method.
-func (m *MockDB) Rollback() error {
+func (m *MockTx) Rollback() error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Rollback")
 	ret0, _ := ret[0].(error)
@@ -97,7 +136,48 @@ func (m *MockDB) Rollback() error {
 }
 
 // Rollback indicates an expected call of Rollback.
-func (mr *MockDBMockRecorder) Rollback() *gomock.Call {
+func (mr *MockTxMockRecorder) Rollback() *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockDB)(nil).Rollback))
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Rollback", reflect.TypeOf((*MockTx)(nil).Rollback))
+}
+
+// MockSQLRow is a mock of SQLRow interface.
+type MockSQLRow struct {
+	ctrl     *gomock.Controller
+	recorder *MockSQLRowMockRecorder
+}
+
+// MockSQLRowMockRecorder is the mock recorder for MockSQLRow.
+type MockSQLRowMockRecorder struct {
+	mock *MockSQLRow
+}
+
+// NewMockSQLRow creates a new mock instance.
+func NewMockSQLRow(ctrl *gomock.Controller) *MockSQLRow {
+	mock := &MockSQLRow{ctrl: ctrl}
+	mock.recorder = &MockSQLRowMockRecorder{mock}
+	return mock
+}
+
+// EXPECT returns an object that allows the caller to indicate expected use.
+func (m *MockSQLRow) EXPECT() *MockSQLRowMockRecorder {
+	return m.recorder
+}
+
+// Scan mocks base method.
+func (m *MockSQLRow) Scan(dest ...interface{}) error {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{}
+	for _, a := range dest {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "Scan", varargs...)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Scan indicates an expected call of Scan.
+func (mr *MockSQLRowMockRecorder) Scan(dest ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Scan", reflect.TypeOf((*MockSQLRow)(nil).Scan), dest...)
 }
