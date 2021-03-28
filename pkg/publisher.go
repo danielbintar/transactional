@@ -5,18 +5,18 @@ import (
 )
 
 type Publisher interface {
-	Publish(ctx context.Context, db DB, topic string, payload string) error
+	PublishMWS(ctx context.Context, tx Tx, topic string, payload string) error
 }
 
-type kafkaPublisher struct {
+type publisher struct {
 }
 
-func NewKafkaPublisher() kafkaPublisher {
-	return kafkaPublisher{}
+func NewPublisher() publisher {
+	return publisher{}
 }
 
-func (k kafkaPublisher) Publish(ctx context.Context, db DB, topic string, payload string) error {
-	query := "INSERT INTO transactional_events (topic, payload) VALUES(?,?)"
-	_, err := db.ExecContext(ctx, query, topic, payload)
+func (p publisher) PublishMWS(ctx context.Context, tx Tx, topic string, payload string) error {
+	query := "INSERT INTO mws_events (topic, payload) VALUES(?,?)"
+	_, err := tx.ExecContext(ctx, query, topic, payload)
 	return err
 }

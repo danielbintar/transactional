@@ -1,6 +1,6 @@
-class CreateTransactionalEvent < ActiveRecord::Migration[6.0]
+class CreateMwsEvent < ActiveRecord::Migration[6.0]
   def self.up
-    create_table :transactional_events do |t|
+    create_table :mws_events do |t|
       t.string   :topic,      null: false
       t.json     :payload,    null: false
       t.datetime :created_at, default: -> { 'CURRENT_TIMESTAMP' }
@@ -8,6 +8,6 @@ class CreateTransactionalEvent < ActiveRecord::Migration[6.0]
   end
 
   def self.down
-    drop_table :transactional_events
+    drop_table :mws_events
   end
 end
