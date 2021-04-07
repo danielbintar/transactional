@@ -1,4 +1,4 @@
-package pkg
+package transactional
 
 //go:generate mockgen -source=db.go -destination=mocks/db.go -package=mocks
 
