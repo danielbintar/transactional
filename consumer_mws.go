@@ -1,14 +1,17 @@
-package pkg
+package transactional
+
+//go:generate mockgen -source=consumer_mws.go -destination=mocks/consumer_mws.go -package=mocks
 
 import (
 	"context"
 	"strconv"
 	"time"
+
+	mws "go.bukalapak.io/mws-api-go-client"
 )
 
-type Consumer interface {
-	Run()
-	Shutdown()
+type Mws interface {
+	PutJobWithID(jobName, jobID, routingKey, priority string, payload mws.Payload, delay int64, timeout time.Duration) (resp *mws.APIResponse, err error)
 }
 
 type mwsConsumer struct {

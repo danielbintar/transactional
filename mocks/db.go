@@ -9,7 +9,7 @@ import (
 	sql "database/sql"
 	reflect "reflect"
 
-	pkg "github.com/danielbintar/transactional/pkg"
+	transactional "github.com/danielbintar/transactional"
 	gomock "github.com/golang/mock/gomock"
 )
 
@@ -37,10 +37,10 @@ func (m *MockDB) EXPECT() *MockDBMockRecorder {
 }
 
 // Begin mocks base method.
-func (m *MockDB) Begin() (pkg.Tx, error) {
+func (m *MockDB) Begin() (transactional.Tx, error) {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Begin")
-	ret0, _ := ret[0].(pkg.Tx)
+	ret0, _ := ret[0].(transactional.Tx)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -109,14 +109,14 @@ func (mr *MockTxMockRecorder) ExecContext(ctx, query interface{}, args ...interf
 }
 
 // QueryRow mocks base method.
-func (m *MockTx) QueryRow(query string, args ...interface{}) pkg.SQLRow {
+func (m *MockTx) QueryRow(query string, args ...interface{}) transactional.SQLRow {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{query}
 	for _, a := range args {
 		varargs = append(varargs, a)
 	}
 	ret := m.ctrl.Call(m, "QueryRow", varargs...)
-	ret0, _ := ret[0].(pkg.SQLRow)
+	ret0, _ := ret[0].(transactional.SQLRow)
 	return ret0
 }
 
