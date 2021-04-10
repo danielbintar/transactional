@@ -7,17 +7,9 @@ import (
 	"database/sql"
 )
 
-type DB interface {
-	Begin() (Tx, error)
-}
-
 type Tx interface {
 	ExecContext(ctx context.Context, query string, args ...interface{}) (sql.Result, error)
-	QueryRow(query string, args ...interface{}) SQLRow
+	QueryRow(query string, args ...interface{}) *sql.Row
 	Commit() error
 	Rollback() error
-}
-
-type SQLRow interface {
-	Scan(dest ...interface{}) error
 }
