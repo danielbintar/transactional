@@ -23,7 +23,7 @@ func main() {
 		panic(err)
 	}
 
-	consumer := transactional.NewKafkaConsumer(sql, producer)
+	consumer := transactional.NewKafkaConsumer(sql, producer, 40)
 	go consumer.Run()
 	defer consumer.Shutdown()
 
