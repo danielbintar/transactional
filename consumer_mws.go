@@ -47,7 +47,7 @@ func (c *mwsConsumer) Process() error {
 		return err
 	}
 
-	query := "SELECT id, topic, payload FROM mws_events FOR UPDATE SKIP LOCKED LIMIT 1"
+	query := "SELECT id, topic, payload FROM mws_events LIMIT 1 FOR UPDATE SKIP LOCKED"
 	row := tx.QueryRow(query)
 
 	var id int
