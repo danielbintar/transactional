@@ -11,20 +11,37 @@ import (
 )
 
 type kafkaConsumer struct {
-	active bool
-	db     *sql.DB
-	kafka  sarama.SyncProducer
+	active    bool
+	db        *sql.DB
+	kafka     sarama.SyncProducer
+	workerNum uint
 }
 
-func NewKafkaConsumer(db *sql.DB, kafka sarama.SyncProducer) *kafkaConsumer {
+func NewKafkaConsumer(db *sql.DB, kafka sarama.SyncProducer, workerNum uint) *kafkaConsumer {
 	return &kafkaConsumer{
-		active: true,
-		db:     db,
-		kafka:  kafka,
+		active:    true,
+		db:        db,
+		kafka:     kafka,
+		workerNum: workerNum,
 	}
 }
 
 func (c *kafkaConsumer) Run() {
+	for i := uint(1); i <= c.workerNum; i++ {
+		go func() {
+			for {
+				if err := c.Process(); err != nil {
+					time.Sleep(2 * time.Minute)
+				}
+			}
+		}()
+	}
+
+	for c.active {
+	}
+}
+
+func (c *kafkaConsumer) run() {
 	for c.active {
 		if err := c.Process(); err != nil {
 			time.Sleep(2 * time.Minute)
