@@ -1,0 +1,8 @@
+version: '3'
+services:
+  mysql:
+    image: mysql:8.0.23
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpw
+    ports:
+      - 3306:3306

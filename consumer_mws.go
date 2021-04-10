@@ -4,6 +4,7 @@ package transactional
 
 import (
 	"context"
+	"database/sql"
 	"strconv"
 	"time"
 
@@ -16,11 +17,11 @@ type Mws interface {
 
 type mwsConsumer struct {
 	active bool
-	db     DB
+	db     *sql.DB
 	mws    Mws
 }
 
-func NewMWSConsumer(db DB, mws Mws) *mwsConsumer {
+func NewMWSConsumer(db *sql.DB, mws Mws) *mwsConsumer {
 	return &mwsConsumer{
 		active: true,
 		db:     db,
@@ -57,15 +58,15 @@ func (c *mwsConsumer) Process() error {
 		return err
 	}
 
-	jobID := strconv.Itoa(id)
-	_, err = c.mws.PutJobWithID(topic, jobID, jobID, "normal", payload, 0, 5*time.Second)
+	query = "DELETE FROM mws_events where id = ?"
+	_, err = tx.ExecContext(context.Background(), query, id)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	query = "DELETE FROM mws_events where id = ?"
-	_, err = tx.ExecContext(context.Background(), query, id)
+	jobID := strconv.Itoa(id)
+	_, err = c.mws.PutJobWithID(topic, jobID, jobID, "normal", payload, 0, 5*time.Second)
 	if err != nil {
 		tx.Rollback()
 		return err
