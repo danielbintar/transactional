@@ -42,7 +42,7 @@ func (c *kafkaConsumer) Process() error {
 		return err
 	}
 
-	query := "SELECT id, topic, payload FROM kafka_events FOR UPDATE SKIP LOCKED LIMIT 1"
+	query := "SELECT id, topic, payload FROM kafka_events LIMIT 1 FOR UPDATE SKIP LOCKED"
 	row := tx.QueryRow(query)
 
 	var id int
