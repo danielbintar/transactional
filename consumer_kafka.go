@@ -4,6 +4,7 @@ package transactional
 
 import (
 	"context"
+	"database/sql"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -11,11 +12,11 @@ import (
 
 type kafkaConsumer struct {
 	active bool
-	db     DB
+	db     *sql.DB
 	kafka  sarama.SyncProducer
 }
 
-func NewKafkaConsumer(db DB, kafka sarama.SyncProducer) *kafkaConsumer {
+func NewKafkaConsumer(db *sql.DB, kafka sarama.SyncProducer) *kafkaConsumer {
 	return &kafkaConsumer{
 		active: true,
 		db:     db,
@@ -52,18 +53,18 @@ func (c *kafkaConsumer) Process() error {
 		return err
 	}
 
-	msg := &sarama.ProducerMessage{
-		Topic: topic,
-		Value: sarama.StringEncoder(payload),
-	}
-	_, _, err = c.kafka.SendMessage(msg)
+	query = "DELETE FROM kafka_events where id = ?"
+	_, err = tx.ExecContext(context.Background(), query, id)
 	if err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	query = "DELETE FROM kafka_events where id = ?"
-	_, err = tx.ExecContext(context.Background(), query, id)
+	msg := &sarama.ProducerMessage{
+		Topic: topic,
+		Value: sarama.StringEncoder(payload),
+	}
+	_, _, err = c.kafka.SendMessage(msg)
 	if err != nil {
 		tx.Rollback()
 		return err
