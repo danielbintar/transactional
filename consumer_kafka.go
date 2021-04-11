@@ -5,6 +5,9 @@ package transactional
 import (
 	"context"
 	"database/sql"
+	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/Shopify/sarama"
@@ -15,11 +18,13 @@ type kafkaConsumer struct {
 	db        *sql.DB
 	kafka     sarama.SyncProducer
 	workerNum uint
+	batch     uint
 }
 
-func NewKafkaConsumer(db *sql.DB, kafka sarama.SyncProducer, workerNum uint) *kafkaConsumer {
+func NewKafkaConsumer(db *sql.DB, kafka sarama.SyncProducer, workerNum uint, batch uint) *kafkaConsumer {
 	return &kafkaConsumer{
 		active:    true,
+		batch:     batch,
 		db:        db,
 		kafka:     kafka,
 		workerNum: workerNum,
@@ -59,32 +64,73 @@ func (c *kafkaConsumer) Process() error {
 		return err
 	}
 
-	query := "SELECT id, topic, payload FROM kafka_events LIMIT 1 FOR UPDATE SKIP LOCKED"
-	row := tx.QueryRow(query)
+	if c.batch < 2 {
+		row := tx.QueryRow("SELECT id, topic, payload FROM kafka_events LIMIT 1 FOR UPDATE SKIP LOCKED")
 
-	var id int
-	var topic string
-	var payload string
-	if err := row.Scan(&id, &topic, &payload); err != nil {
-		tx.Rollback()
-		return err
-	}
+		var id int
+		var topic string
+		var payload string
+		if err := row.Scan(&id, &topic, &payload); err != nil {
+			tx.Rollback()
+			return err
+		}
 
-	query = "DELETE FROM kafka_events where id = ?"
-	_, err = tx.ExecContext(context.Background(), query, id)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
+		_, err = tx.ExecContext(context.Background(), "DELETE FROM kafka_events where id = ?", id)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
 
-	msg := &sarama.ProducerMessage{
-		Topic: topic,
-		Value: sarama.StringEncoder(payload),
-	}
-	_, _, err = c.kafka.SendMessage(msg)
-	if err != nil {
-		tx.Rollback()
-		return err
+		msg := &sarama.ProducerMessage{
+			Topic: topic,
+			Value: sarama.StringEncoder(payload),
+		}
+		_, _, err = c.kafka.SendMessage(msg)
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+	} else {
+		rows, err := tx.Query(fmt.Sprintf("SELECT id, topic, payload FROM kafka_events LIMIT %d FOR UPDATE SKIP LOCKED", c.batch))
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		idAry := make([]string, 0)
+		messages := make([]*sarama.ProducerMessage, 0)
+
+		for rows.Next() {
+			var id int
+			var topic string
+			var payload string
+			if err := rows.Scan(&id, &topic, &payload); err != nil {
+				tx.Rollback()
+				return err
+			}
+
+			idAry = append(idAry, strconv.Itoa(id))
+			messages = append(messages, &sarama.ProducerMessage{
+				Topic: topic,
+				Value: sarama.StringEncoder(payload),
+			})
+		}
+		if err := rows.Err(); err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		ids := strings.Join(idAry, "','")
+		_, err = tx.ExecContext(context.Background(), fmt.Sprintf(`DELETE FROM kafka_events where id IN ('%s')`, ids))
+		if err != nil {
+			tx.Rollback()
+			return err
+		}
+
+		if err = c.kafka.SendMessages(messages); err != nil {
+			tx.Rollback()
+			return err
+		}
 	}
 
 	return tx.Commit()
