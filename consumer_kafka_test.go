@@ -106,7 +106,7 @@ func TestKafkaConsumerFailToDeleteData(t *testing.T) {
 	}
 }
 
-func TestMWSConsumerFailToKafka(t *testing.T) {
+func TestKafkaConsumerFailToKafka(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -132,7 +132,7 @@ func TestMWSConsumerFailToKafka(t *testing.T) {
 	consumer := transactional.NewKafkaConsumer(db, kafka, 1, 1)
 
 	err = consumer.Process()
-	assert.Equal(t, defaultErr, err, "process should return error when fail to mws")
+	assert.Equal(t, defaultErr, err, "process should return error when fail to kafka")
 
 	consumer.Shutdown()
 	consumer.Run()
